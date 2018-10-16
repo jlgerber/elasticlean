@@ -1,0 +1,8 @@
+[package]
+name = "elasticlean"
+version = "0.1.0"
+authors = ["jonathan gerber <jlgerber@gmail.com>"]
+
+[dependencies]
+pest = "2.0"
+pest_derive="2.0"

@@ -1,0 +1,12 @@
+alpha = _{ 'a'..'z' | 'A'..'Z' }
+digit = _{ '0'..'9' }
+zero_through_two = _{ '0'..'2' }
+//zero_through_three = _{'0'..'3'}
+
+base = { alpha ~ (alpha | digit)+ }
+year = { digit{4} }
+month = { "0" ~ digit | "1" ~ zero_through_two  }
+// we should be able to do better actually
+day = { (zero_through_two ~ digit) | ( "3" ~ '0'..'1') }
+date = { year ~ "." ~ month ~ "." ~ day }
+index = { base ~ "-" ~ date }
