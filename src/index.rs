@@ -1,17 +1,20 @@
-
-
+use std::fmt::Display;
 use std::default::Default;
 use chrono::naive::NaiveDate;
 use std::num::ParseIntError;
+use std::fmt;
 
 /// The return type
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Index {
     pub name: String,
-    //pub year: String, // change later
-    //pub month: String,
-    //pub day: String,
     pub date: NaiveDate
+}
+
+impl Display for Index {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}-{}", self.name, self.date.to_string().replace("-","."))
+    }
 }
 
 impl Default for Index {
@@ -84,5 +87,14 @@ mod tests {
             date: NaiveDate::from_ymd(2018, 2, 4)
         };
         assert_eq!(id, Ok(expected));
+    }
+
+
+    #[test]
+    fn index_display() {
+        let id = Index::from_strs("foo", "2018", "02", "04").unwrap();
+        let idstr = format!("{}", id);
+        let expected = "foo-2018.02.04".to_string();
+        assert_eq!(idstr, expected);
     }
 }
