@@ -3,7 +3,7 @@ extern crate pest;
 extern crate pest_derive;
 extern crate chrono;
 
-pub mod indexparser;
+pub(crate) mod indexparser;
 pub mod index;
 //use indexparser;
 

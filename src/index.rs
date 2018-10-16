@@ -1,8 +1,12 @@
 use std::fmt::Display;
 use std::default::Default;
 use chrono::naive::NaiveDate;
+use chrono::Utc;
+use chrono::Datelike;
 use std::num::ParseIntError;
 use std::fmt;
+
+use indexparser::IndexParser;
 
 /// The return type
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -37,6 +41,11 @@ impl Index {
         }
     }
 
+    /// Given a str return a result
+    pub fn from_str(name: &str) -> Result<Index, String> {
+        IndexParser::parse(name)
+    }
+
     /// Given &str components, return a result that is either an index isntance or a ParseIntError
     pub fn from_strs<I>(name: I, year: &str, month: &str, day: &str) -> Result<Index, ParseIntError>
     where
@@ -50,8 +59,35 @@ impl Index {
             date: NaiveDate::from_ymd(year, month, day)
         })
     }
-}
 
+    /// Get name str
+    pub fn name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    /// get date reference
+    pub fn date(&self) -> &NaiveDate {
+        &self.date
+    }
+
+    /// return the number of days old
+    pub fn days(&self) -> i64 {
+        let now = Utc::now();
+        let now_naive = NaiveDate::from_ymd(now.year(), now.month(), now.day());
+        let offset = now_naive.signed_duration_since(*self.date());
+        offset.num_days()
+    }
+
+    /// return the number of days since a Datelike input as an i64
+    pub fn days_since<D>(&self, from_date: &D) -> i64
+    where
+        D: Datelike
+    {
+        let nd = NaiveDate::from_ymd(from_date.year(), from_date.month(), from_date.day());
+        let offset = nd.signed_duration_since(*self.date());
+        offset.num_days()
+    }
+}
 
 
 #[cfg(test)]
@@ -80,6 +116,16 @@ mod tests {
     }
 
     #[test]
+    fn index_from_str() {
+        let id = Index::from_str("foo-2018.02.04");
+        let expected = Index {
+            name: "foo".to_string(),
+            date: NaiveDate::from_ymd(2018, 2, 4)
+        };
+        assert_eq!(id, Ok(expected));
+    }
+
+    #[test]
     fn index_from_strs() {
         let id = Index::from_strs("foo", "2018", "02", "04");
         let expected = Index {
@@ -89,12 +135,43 @@ mod tests {
         assert_eq!(id, Ok(expected));
     }
 
-
     #[test]
     fn index_display() {
         let id = Index::from_strs("foo", "2018", "02", "04").unwrap();
         let idstr = format!("{}", id);
         let expected = "foo-2018.02.04".to_string();
         assert_eq!(idstr, expected);
+    }
+
+    #[test]
+    fn index_name() {
+        let id = Index::from_strs("foo", "2018", "02", "04").unwrap();
+        let name = id.name();
+        let expected = "foo";
+        assert_eq!(name, expected);
+    }
+
+    #[test]
+    fn index_date() {
+        let id = Index::from_strs("foo", "2018", "02", "04").unwrap();
+        let date = id.date();
+        let expected = NaiveDate::from_ymd(2018,2,4);
+        assert_eq!(date, &expected);
+    }
+
+    #[test]
+    fn index_days_since() {
+        let id = Index::from_strs("foo", "2018", "02", "03").unwrap();
+        let fd = NaiveDate::from_ymd(2018,2,4);
+        let days = id.days_since(&fd);
+        assert_eq!(days, 1);
+    }
+
+    #[test]
+    fn index_days_since2() {
+        let id = Index::from_strs("foo", "2018", "02", "05").unwrap();
+        let fd = NaiveDate::from_ymd(2018,2,4);
+        let days = id.days_since(&fd);
+        assert_eq!(days, -1);
     }
 }
