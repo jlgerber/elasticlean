@@ -1,67 +1,51 @@
 use pest::Parser;
-use std::default::Default;
+use index::Index;
+
+// The pest parser is not exposed directly.
 #[derive(Parser)]
 #[grammar = "index.pest"]
 struct _IndexParser;
 
+// IndexParser is a convenience struct which provides a parse method that is more suited
+// to the api than the raw pest _IndexParser.
 pub struct IndexParser;
 
-/// The return type
-#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Default)]
-pub struct Index {
-    pub name: String,
-    pub year: String, // change later
-    pub month: String,
-    pub day: String,
-}
-
-impl Index {
-    // TODO: change year, month, day into u8 and return result
-    pub fn new<I>(name: I, year: I, month: I, day: I) -> Index
-    where I: Into<String>
-    {
-        Index {
-            name:  name.into(),
-            year:  year.into(),
-            month: month.into(),
-            day:   day.into(),
-        }
-    }
-}
-
 impl IndexParser {
+
     /// parse an elasticsearch index, of the form ```name-YYYY.MM.DD``` and return
     /// a Result- either an Ok Index nistance, or an Err String.
     pub fn parse(input: &str ) -> Result<Index, String> {
         let index =  _IndexParser::parse(Rule::index, input).map_err(|e| format!("{}",e))?;
 
-        // Because ident_list is silent, the iterator will contain idents
-        let mut idx = Index::default();
+        // parsing guarantees that these vars are going to get set. we just choose arbitrary
+        // values for now.
+        let mut name = "foo";
+        let mut year = "2000";
+        let mut month = "01";
+        let mut day = "01";
 
         for idx_piece in index {
-            let span = idx_piece.clone().into_span();
 
             // A idx_piece can be converted to an iterator of the tokens which make it up:
             for inner_idx_piece in idx_piece.into_inner() {
                 let inner_span = inner_idx_piece.clone().into_span();
 
-
                 match inner_idx_piece.as_rule() {
                     Rule::base => {
-                        idx.name = inner_span.as_str().to_string();
+                        name = inner_span.as_str();
                     },
                     Rule::date => {
                         for date_piece in inner_idx_piece.into_inner() {
                             let inner_span = date_piece.clone().into_span();
                             match date_piece.as_rule() {
                                 Rule::year  => {
-                                    idx.year = inner_span.as_str().to_string();
+                                    year = inner_span.as_str();
                                 },
                                 Rule::month => {
-                                    idx.month = inner_span.as_str().to_string();
+                                    month = inner_span.as_str();
                                 },
                                 Rule::day   => {
-                                    idx.day = inner_span.as_str().to_string();
+                                    day = inner_span.as_str();
                                 },
                                 _ => unreachable!()
                             }
@@ -72,6 +56,8 @@ impl IndexParser {
             }
         }
 
+        let idx = Index::from_strs(name, year, month, day)
+                    .map_err(|e| format!("{}",e))?;
         Ok(idx)
     }
 }
@@ -79,27 +65,14 @@ impl IndexParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn index_new() {
-        let id = Index::new("foo", "2018", "02", "04");
-        let expected = Index {
-            name: "foo".to_string(),
-            year: "2018".to_string(),
-            month: "02".to_string(),
-            day: "04".to_string(),
-        };
-        assert_eq!(id, expected);
-    }
+    use chrono::naive::NaiveDate;
 
     #[test]
     fn index_parse() {
         let id = IndexParser::parse("foo-2018.02.22");
         let expected = Index {
             name: "foo".to_string(),
-            year: "2018".to_string(),
-            month: "02".to_string(),
-            day: "22".to_string(),
+            date: NaiveDate::from_ymd(2018, 2, 22)
         };
         assert_eq!(id, Ok(expected));
     }
