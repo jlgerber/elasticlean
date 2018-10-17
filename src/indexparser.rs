@@ -1,5 +1,6 @@
 use pest::Parser;
 use index::Index;
+use errors::EcError;
 
 // The pest parser is not exposed directly.
 #[derive(Parser)]
@@ -11,11 +12,10 @@ struct _IndexParser;
 pub struct IndexParser;
 
 impl IndexParser {
-
     /// parse an elasticsearch index, of the form ```name-YYYY.MM.DD``` and return
     /// a Result- either an Ok Index nistance, or an Err String.
-    pub fn parse(input: &str ) -> Result<Index, String> {
-        let index =  _IndexParser::parse(Rule::index, input).map_err(|e| format!("{}",e))?;
+    pub fn parse(input: &str ) -> Result<Index, EcError> {
+        let index =  _IndexParser::parse(Rule::index, input).map_err(|e| EcError::ParseError(format!("{}",e)))?;
 
         // parsing guarantees that these vars are going to get set. we just choose arbitrary
         // values for now.
@@ -57,21 +57,33 @@ impl IndexParser {
         }
 
         let idx = Index::from_strs(name, year, month, day)
-                    .map_err(|e| format!("{}",e))?;
+                    .map_err(|e| EcError::ParseError(format!("{}",e)))?;
         Ok(idx)
     }
 }
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use chrono::naive::NaiveDate;
 
+
     #[test]
     fn index_parse() {
         let id = IndexParser::parse("foo-2018.02.22");
         let expected = Index {
             name: "foo".to_string(),
+            date: NaiveDate::from_ymd(2018, 2, 22)
+        };
+        assert_eq!(id, Ok(expected));
+    }
+
+    #[test]
+    fn index_parse_long() {
+        let id = IndexParser::parse("foo-1.2.3-2018.02.22");
+        let expected = Index {
+            name: "foo-1.2.3".to_string(),
             date: NaiveDate::from_ymd(2018, 2, 22)
         };
         assert_eq!(id, Ok(expected));
