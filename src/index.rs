@@ -15,6 +15,7 @@ pub struct Index {
     pub date: NaiveDate
 }
 
+// return a string formatted thusly: ```base-YYYY.MM.DD```
 impl Display for Index {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}-{}", self.name, self.date.to_string().replace("-","."))
@@ -32,6 +33,7 @@ impl Default for Index {
 
 impl Index {
     // TODO: change year, month, day into u8 and return result
+    /// Given a base name, year, month, and day, new up an Index
     pub fn new<I>(name: I, year: i32, month: u32, day: u32) -> Index
     where I: Into<String>
     {
@@ -60,17 +62,17 @@ impl Index {
         })
     }
 
-    /// Get name str
+    /// Get a reference to a str representing the base name of the Index
     pub fn name(&self) -> &str {
         self.name.as_str()
     }
 
-    /// get date reference
+    /// Get reference to a NaiveDate representing the date of the Index
     pub fn date(&self) -> &NaiveDate {
         &self.date
     }
 
-    /// return the number of days old
+    /// Return the number of days old
     pub fn days(&self) -> i64 {
         let now = Utc::now();
         let now_naive = NaiveDate::from_ymd(now.year(), now.month(), now.day());
@@ -78,7 +80,7 @@ impl Index {
         offset.num_days()
     }
 
-    /// return the number of days since a Datelike input as an i64
+    /// Return the number of days since a Datelike input as an i64
     pub fn days_since<D>(&self, from_date: &D) -> i64
     where
         D: Datelike
@@ -173,5 +175,34 @@ mod tests {
         let fd = NaiveDate::from_ymd(2018,2,4);
         let days = id.days_since(&fd);
         assert_eq!(days, -1);
+    }
+
+    #[test]
+    fn index_lt() {
+        let id = Index::from_str("foo-2018.02.05");
+        let id2= Index::from_str("foo-2018.02.04");
+        assert!(id > id2);
+    }
+
+
+    #[test]
+    fn index_eq() {
+        let id = Index::from_str("foo-2018.02.05");
+        let id2= Index::from_str("foo-2018.02.05");
+        assert_eq!(id, id2);
+    }
+
+    #[test]
+    fn index_ne() {
+        let id = Index::from_str("foo-2018.02.05");
+        let id2= Index::from_str("foo-2017.02.05");
+        assert_ne!(id, id2);
+    }
+
+    #[test]
+    fn index_ne2() {
+        let id = Index::from_str("foo-2018.02.05");
+        let id2= Index::from_str("bar-2018.02.05");
+        assert_ne!(id, id2);
     }
 }

@@ -6,6 +6,8 @@ use chrono::NaiveDate;
 use chrono::Utc;
 use chrono::Datelike;
 
+use elasticlean::elastic::*;
+
 fn main() -> Result<(),String> {
     let idxstr = "foo-2018.03.02";
     let idx = Index::from_str(idxstr)?;
@@ -24,5 +26,9 @@ fn main() -> Result<(),String> {
     let now_naive = NaiveDate::from_ymd(now.year(), now.month(), now.day());
     let offset = now_naive.signed_duration_since(*idx.date());
     println!("days since {} = {}", idxstr, offset.num_days());
+
+    let ec = Elasticleaner::new("cs-elastic-client-01.d2.com",9200);
+    let results: Vec<Index> = ec.get_indices().unwrap().into_iter().map(|v| Index::from_str(v.index.as_str()).unwrap()).collect();
+    println!("{:?}", results);
     Ok(())
 }
