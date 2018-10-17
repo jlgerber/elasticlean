@@ -11,7 +11,4 @@ extern crate chrono;
 pub(crate) mod indexparser;
 pub mod index;
 pub mod elastic;
-
-pub fn foo() {
-    println!("foo");
-}
+pub mod errors;
