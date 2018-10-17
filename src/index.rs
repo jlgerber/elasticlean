@@ -6,6 +6,8 @@ use chrono::Datelike;
 use std::num::ParseIntError;
 use std::fmt;
 
+use errors::EcError;
+
 use indexparser::IndexParser;
 
 /// The return type
@@ -44,7 +46,7 @@ impl Index {
     }
 
     /// Given a str return a result
-    pub fn from_str(name: &str) -> Result<Index, String> {
+    pub fn from_str(name: &str) -> Result<Index, EcError> {
         IndexParser::parse(name)
     }
 
@@ -91,7 +93,6 @@ impl Index {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -126,6 +127,18 @@ mod tests {
         };
         assert_eq!(id, Ok(expected));
     }
+
+
+    #[test]
+    fn index_from_str3() {
+        let id = Index::from_str("foo-1.2.3-2018.02.04");
+        let expected = Index {
+            name: "foo-1.2.3".to_string(),
+            date: NaiveDate::from_ymd(2018, 2, 4)
+        };
+        assert_eq!(id, Ok(expected));
+    }
+
 
     #[test]
     fn index_from_strs() {
