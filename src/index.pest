@@ -1,8 +1,10 @@
 alpha = _{ 'a'..'z' | 'A'..'Z' }
 digit = _{ '0'..'9' }
 zero_through_two = _{ '0'..'2' }
-
-base = { alpha ~ (alpha | digit)+ }
+version = _{"-" ~ digit{1,3} ~ "." ~ digit{1,3} ~ "." ~ digit{1,3} }
+// eg winlogbeat-2.3.2-2017.02.03
+// foo-2018.02.04
+base = { alpha ~ (alpha | digit)+ ~ version{0,1} }
 year = { digit{4} }
 month = { "0" ~ digit | "1" ~ zero_through_two  }
 
