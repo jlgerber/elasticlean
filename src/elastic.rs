@@ -1,3 +1,7 @@
+//use serde_json::{Value, Error};
+use reqwest;
+use errors::EcError;
+
 #[derive(Debug)]
 pub struct Elasticleaner {
     host: String,
@@ -15,9 +19,7 @@ impl Elasticleaner {
         }
     }
 }
-use serde_json::{Value, Error};
-use failure;
-use reqwest;
+
 
 #[derive(Deserialize, Debug)]
 pub struct RetVal {
@@ -26,10 +28,12 @@ pub struct RetVal {
 
 impl Elasticleaner {
     /// retrieve a list of indices
-    pub fn get_indices(&self) -> Result<Vec<RetVal>, failure::Error> {
+    pub fn get_indices(&self) -> Result<Vec<RetVal>, EcError> {
         let route = self.get_route("_cat/indices?format=json");
-        let body: Vec<RetVal> = reqwest::get(&route)?
-                    .json()?;
+        let body: Vec<RetVal> = reqwest::get(&route)
+                                .map_err(|e| EcError::ReqwestGetError(format!("{}",e)))?
+                                .json()
+                                .map_err(|e| EcError::ReqwestJsonError(format!("{}",e)))?;
         Ok(body)
     }
 
