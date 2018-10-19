@@ -1,0 +1,15 @@
+---
+indices:
+  - logstash:
+    delete:
+      retain: 60
+  - organicnginx:
+    delete:
+      retain: 60
+  - ddext:
+    retain: 60
+  - exceptions:
+    retain: 60
+
+
+
