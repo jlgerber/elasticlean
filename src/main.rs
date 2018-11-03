@@ -50,6 +50,21 @@ enum Opt {
         /// Prints a list of unique base names of indices
         names_only: bool,
     },
+    #[structopt(name = "process")]
+    /// apply a process to indices
+    Process {
+        #[structopt(short = "n", long = "basename")]
+        /// Specify the base name of the index. (sans date)
+        name: Option<String>,
+
+        #[structopt(short = "s", long = "start")]
+        /// Specify the number of days back you want to start
+        start: Option<i32>,
+
+        #[structopt(short = "e", long = "end")]
+        /// Specify the number of days back you want to stop
+        end: Option<i32>,
+    },
     #[structopt(name = "delete")]
     /// query indices
     Delete {
@@ -78,6 +93,7 @@ fn main() -> Result<(), EcError> {
 
     match matches {
          Opt::Query{name, start, end, names_only} => process_query(name, start, end, names_only),
+         Opt::Process{name, start, end} => process_process(name, start, end),
          Opt::Delete{name, start, end, dry_run} => process_delete(name, start, end, dry_run),
     }?;
 

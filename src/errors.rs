@@ -7,4 +7,6 @@ pub enum EcError {
     ReqwestGetError(String),
     #[fail(display = "reqwest json error. unable to deserialize to json: {}", _0)]
     ReqwestJsonError(String),
+    #[fail(display = "NotImplemented")]
+    NotImplemented,
 }

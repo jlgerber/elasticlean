@@ -5,16 +5,41 @@ use chrono::Utc;
 use chrono::Datelike;
 use std::num::ParseIntError;
 use std::fmt;
-
+use std::cmp::{PartialEq, Ordering};
 use errors::EcError;
 
 use indexparser::IndexParser;
+use rawindex::RawIndex;
 
 /// The return type
-#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
+#[derive( Eq, Debug )]
 pub struct Index {
     pub name: String,
-    pub date: NaiveDate
+    pub date: NaiveDate,
+}
+
+impl PartialEq for Index {
+    fn eq(&self, other: &Index) -> bool {
+        self.name == other.name && self.date == other.date
+    }
+}
+
+impl PartialOrd for Index {
+    fn partial_cmp(&self, other: &Index) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Index {
+    fn cmp(&self, other: &Index) -> Ordering {
+        // if the names match then we compare on the date field
+        if self.name == other.name {
+            self.date.cmp(&other.date)
+        } else {
+            // otherwise, we simply compare on the name field
+            self.name.cmp(&other.name)
+        }
+    }
 }
 
 // return a string formatted thusly: ```base-YYYY.MM.DD```
@@ -23,7 +48,7 @@ impl Display for Index {
         write!(f, "{}-{}", self.name, self.date.to_string().replace("-","."))
     }
 }
-
+// TODO: pick a better default. Maybe the minimum date supported
 impl Default for Index {
     fn default() -> Self {
         Index {

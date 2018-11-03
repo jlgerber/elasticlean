@@ -5,6 +5,8 @@ use index::Index;
 use elastic::Elasticleaner;
 use constants;
 
+use indices::deprecate::Deprecate;
+
 // Given optional name, start, and end, return a Result wrapped
 // vector of Index structs if successful, or an EcError in the failure case.
 // The start and end are expressed in age in days from today, and can
@@ -28,7 +30,6 @@ pub fn get_indices(name: Option<String>, start: Option<i32>, end: Option<i32>)
 // process the query subcommand
 pub fn process_query(name: Option<String>, start: Option<i32>, end: Option<i32>, names_only:bool)
 -> Result<(), EcError> {
-
 
     let mut results: Vec<Index> = get_indices(name, start, end)?;
     let sz = results.len();
@@ -61,6 +62,34 @@ pub fn process_query(name: Option<String>, start: Option<i32>, end: Option<i32>,
     Ok(())
 }
 
+// process the process subcommand
+pub fn process_process(name: Option<String>,start: Option<i32>, end: Option<i32>)
+-> Result<(), EcError> {
+    let mut err = true;
+    if let Some(n) = name.clone()  {
+        if n == "deprecate" {
+            err = false;
+        }
+    }
+    // this is all temp until i rework the code to specify the process
+    if err == true {
+        return Err(EcError::ParseError("need to pass deprecate process".to_string()));
+    }
+
+    let mut results: Vec<Index> = get_indices(name, start, end)?;
+
+    results.sort_unstable();
+
+    let ec = Elasticleaner::new("cs-elastic-client-01.d2.com",9200);
+
+    let results = ec.get_data::<Deprecate>(&results)?;
+
+    for r in &results {
+        println!("{}", r);
+    }
+
+    Ok(())
+}
 // process the delete subcommand
 pub fn process_delete(name: String, start: Option<i32>, end: i32, dry_run: bool)
  -> Result<(), EcError> {
@@ -76,23 +105,25 @@ pub fn process_delete(name: String, start: Option<i32>, end: i32, dry_run: bool)
 
     let results: Vec<Index> = get_indices(Some(name.clone()), start, Some(end_new))?;
 
-    let sz = results.len();
-    let idxs = results.into_iter()
-        .map(|i| format!("{}",i))
-        .collect::<Vec<String>>()
-        .join(",");
-
-    // apply
-    println!("joined indices for delete: {} ",idxs);
-    println!("{} indices will be deleted", sz);
     if dry_run {
+
+        let sz = results.len();
+        let idxs = results.into_iter()
+            .map(|i| format!("{}",i))
+            .collect::<Vec<String>>()
+            .join(",");
+
+        println!("joined indices for delete: {} ",idxs);
+        println!("{} indices will be deleted", sz);
         println!("dry-run");
+
         return Ok(());
     }
 
     let ec = Elasticleaner::new("cs-elastic-client-01.d2.com",9200);
 
-    let results = ec.delete_indices(idxs);
+    //let results = ec.delete_indices(idxs.as_str());
+    let results = ec.delete_indices(&results);
     println!("delete results: {:#?}", results);
     Ok(())
 }
