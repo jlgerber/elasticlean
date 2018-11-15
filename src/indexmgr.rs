@@ -4,7 +4,7 @@ this does not work because we cannot box serde as a trait object.
 There is an erased_serde crate, but I don't know that this will help with
 what i am after..
 */
-use serde::Deserialize;
+//use serde::Deserialize;
 use std::fmt::{Debug, Display};
 use std::collections::HashMap;
 

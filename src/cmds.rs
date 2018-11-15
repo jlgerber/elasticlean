@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use errors::EcError;
 use index::Index;
-use elastic::Elasticleaner;
+use elasticrud::Elasticrud;
 use constants;
 
 use indices::deprecate::Deprecate;
@@ -13,7 +13,7 @@ use indices::deprecate::Deprecate;
 // express the interval [s,e).
 pub fn get_indices(name: Option<String>, start: Option<i32>, end: Option<i32>)
 -> Result<Vec<Index>, EcError> {
-    let ec = Elasticleaner::new("cs-elastic-client-01.d2.com",9200);
+    let ec = Elasticrud::new("cs-elastic-client-01.d2.com",9200);
     let  r = ec.get_indices()?.into_iter();
     // filter_map performs transformation, keeping any successful Result
     let  r = r.filter_map(|v| Index::from_str(v.index.as_str()).ok());
@@ -80,7 +80,7 @@ pub fn process_process(name: Option<String>,start: Option<i32>, end: Option<i32>
 
     results.sort_unstable();
 
-    let ec = Elasticleaner::new("cs-elastic-client-01.d2.com",9200);
+    let ec = Elasticrud::new("cs-elastic-client-01.d2.com",9200);
 
     let results = ec.get_data::<Deprecate>(&results)?;
 
@@ -120,7 +120,7 @@ pub fn process_delete(name: String, start: Option<i32>, end: i32, dry_run: bool)
         return Ok(());
     }
 
-    let ec = Elasticleaner::new("cs-elastic-client-01.d2.com",9200);
+    let ec = Elasticrud::new("cs-elastic-client-01.d2.com",9200);
 
     //let results = ec.delete_indices(idxs.as_str());
     let results = ec.delete_indices(&results);

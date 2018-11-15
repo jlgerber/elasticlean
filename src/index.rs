@@ -11,13 +11,17 @@ use errors::EcError;
 use indexparser::IndexParser;
 use rawindex::RawIndex;
 
-/// The return type
+/// The Index struct is designed to handle dated indices
+/// of the form ```NAME-YYYY.MM.DD```
+/// The Index provides methods to create, sort, and present
+/// the Index.
 #[derive( Eq, Debug )]
 pub struct Index {
     pub name: String,
     pub date: NaiveDate,
 }
 
+// Trait Impls for Comparisions
 impl PartialEq for Index {
     fn eq(&self, other: &Index) -> bool {
         self.name == other.name && self.date == other.date
@@ -70,7 +74,7 @@ impl Index {
         }
     }
 
-    /// Given a str return a result
+    /// Given a str return a result wrapped Index or EcError.
     pub fn from_str(name: &str) -> Result<Index, EcError> {
         IndexParser::parse(name)
     }

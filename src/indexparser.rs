@@ -9,11 +9,13 @@ struct _IndexParser;
 
 // IndexParser is a convenience struct which provides a parse method that is more suited
 // to the api than the raw pest _IndexParser.
+
+/// A dataless struct which provides an api for parsing an Index from an input &str
 pub struct IndexParser;
 
 impl IndexParser {
     /// parse an elasticsearch index, of the form ```name-YYYY.MM.DD``` and return
-    /// a Result- either an Ok Index nistance, or an Err String.
+    /// a Result - either an Ok Index instance, or an Err String.
     pub fn parse(input: &str ) -> Result<Index, EcError> {
         let index =  _IndexParser::parse(Rule::index, input).map_err(|e| EcError::ParseError(format!("{}",e)))?;
 

@@ -35,18 +35,18 @@ pub struct EWrap<I> {
 }
 
 #[derive(Debug)]
-pub struct Elasticleaner {
+pub struct Elasticrud {
     host: String,
     port: u16,
 }
 
-impl Elasticleaner {
-    /// New up an instance of Elasticleaner given a host and port number
-    pub fn new<I>(host: I, port: u16) -> Elasticleaner
+impl Elasticrud {
+    /// New up an instance of Elasticrud given a host and port number
+    pub fn new<I>(host: I, port: u16) -> Elasticrud
     where
         I: Into<String>
     {
-        Elasticleaner {
+        Elasticrud {
             host: host.into(),
             port,
         }
@@ -55,7 +55,7 @@ impl Elasticleaner {
     /// retrieve a list of indices
     pub fn get_indices(&self) -> Result<Vec<RawIndex>, EcError> {
         let route = self.get_route("_cat/indices?format=json");
-        debug!("Elasticleaner.get_indices - route {}", route);
+        debug!("Elasticrud.get_indices - route {}", route);
 
         let body: Vec<RawIndex> = reqwest::get(&route)
                                 .map_err(|e| EcError::ReqwestGetError(format!("{}",e)))?
@@ -100,7 +100,7 @@ impl Elasticleaner {
         .join(",");
         // get route from idxs
         let route = self.get_route(idxs.as_str());
-        debug!("Elasticleaner.delete_indices - route {}", route);
+        debug!("Elasticrud.delete_indices - route {}", route);
 
         let client = reqwest::Client::new();
         client.delete(&route)

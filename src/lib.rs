@@ -12,7 +12,7 @@ use log::Level;
 
 pub(crate) mod indexparser;
 pub mod index;
-pub mod elastic;
+pub mod elasticrud;
 pub mod errors;
 pub mod cmds;
 pub mod constants;

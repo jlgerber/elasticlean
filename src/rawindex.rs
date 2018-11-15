@@ -1,4 +1,6 @@
-
+/// The RawIndex struct reflects the Index data structure
+/// in returned by Elasticsearch.
+/// It is designed to be deserialized via serde_json
 #[derive(Deserialize, Debug)]
 pub struct RawIndex {
     pub health: String,
