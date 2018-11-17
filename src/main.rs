@@ -55,7 +55,7 @@ enum Opt {
     Process {
         #[structopt(short = "n", long = "basename")]
         /// Specify the base name of the index. (sans date)
-        name: Option<String>,
+        name: String,
 
         #[structopt(short = "s", long = "start")]
         /// Specify the number of days back you want to start
@@ -92,9 +92,9 @@ fn main() -> Result<(), EcError> {
     let matches = Opt::from_args();
 
     match matches {
-         Opt::Query{name, start, end, names_only} => process_query(name, start, end, names_only),
-         Opt::Process{name, start, end} => process_process(name, start, end),
-         Opt::Delete{name, start, end, dry_run} => process_delete(name, start, end, dry_run),
+         Opt::Query{ name, start, end, names_only } => process_query(name, start, end, names_only),
+         Opt::Process{ name, start, end }           => process_process(name, start, end),
+         Opt::Delete{ name, start, end, dry_run }   => process_delete(name, start, end, dry_run),
     }?;
 
     Ok(())
