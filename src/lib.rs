@@ -18,4 +18,7 @@ pub mod cmds;
 pub mod constants;
 pub mod rawindex;
 pub mod indices;
+pub mod traits;
+pub mod cmdprocessor;
+
 //pub mod indexmgr;

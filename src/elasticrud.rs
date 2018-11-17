@@ -34,11 +34,13 @@ pub struct EWrap<I> {
     pub source: I,
 }
 
+/// Responsible for providing basic crud over indices
 #[derive(Debug)]
 pub struct Elasticrud {
     host: String,
     port: u16,
 }
+
 
 impl Elasticrud {
     /// New up an instance of Elasticrud given a host and port number
@@ -53,9 +55,9 @@ impl Elasticrud {
     }
 
     /// retrieve a list of indices
-    pub fn get_indices(&self) -> Result<Vec<RawIndex>, EcError> {
+    pub fn get_raw_indices(&self) -> Result<Vec<RawIndex>, EcError> {
         let route = self.get_route("_cat/indices?format=json");
-        debug!("Elasticrud.get_indices - route {}", route);
+        debug!("Elasticrud.get - route {}", route);
 
         let body: Vec<RawIndex> = reqwest::get(&route)
                                 .map_err(|e| EcError::ReqwestGetError(format!("{}",e)))?
@@ -69,24 +71,27 @@ impl Elasticrud {
     /// # usage
     /// ```
     /// let indices = "foobar-2018.10.02";
-    /// let results = ec.get_data::<MyIndexData>(indices)?;
+    /// let results = ec.get::<MyIndexData>(indices)?;
     /// ```
-    pub fn get_data<I>(&self, indices: &Vec<Index>) -> Result<Vec<I>, EcError>
+    pub fn get<I>(&self, indices: &Vec<Index>) -> Result<Vec<I>, EcError>
     where for<'de> I: serde::Deserialize<'de>
     {
+        // build a comma separated string of indexes
         let indices = indices.into_iter()
             .map(|i| format!("{}",i))
             .collect::<Vec<String>>()
             .join(",");
 
+        // build a search route
         let route = self.get_route(format!("{}/_search", indices).as_str());
-        info!("get_data route {}", route);
+        info!("get_indices route {}", route);
         let body: EVal<I> = reqwest::get(&route)
                                 .map_err(|e| EcError::ReqwestGetError(format!("{}",e)))?
                                 .json()
                                 .map_err(|e| EcError::ReqwestJsonError(format!("{}",e)))?;
 
-        // oh boy this is bad
+        // extract a vector of the supplied type from the json returned by
+        // the query and return the results.
         let res = body.hits.hits.into_iter().map(|x| x.source).collect::<Vec<I>>();
         Ok(res)
     }
@@ -109,7 +114,7 @@ impl Elasticrud {
 
     }
 
-
+    // build a uri given the resource
     fn get_route(&self, resource: &str) -> String {
         format!("http://{}:{}/{}", self.host, self.port, resource)
     }

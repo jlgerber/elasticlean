@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use std::fmt;
+use traits::ElasticIndex;
 
 #[derive(Debug, Deserialize)]
 pub struct Deprecate {
@@ -40,4 +41,8 @@ impl Display for Deprecate {
         write!(f, "user: {}\nlevel: {}\nrole: {}\nlocation: {}\n\nmessage:\n{}\n\ncallstack:\n{}\n",
         self.user, level, self.role, self.location, self.message, self.callstack)
     }
+}
+
+impl ElasticIndex for Deprecate {
+    const NAME: &'static str = "deprecate";
 }

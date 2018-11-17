@@ -5,7 +5,6 @@ use index::Index;
 use elasticrud::Elasticrud;
 use constants;
 
-use indices::deprecate::Deprecate;
 
 // Given optional name, start, and end, return a Result wrapped
 // vector of Index structs if successful, or an EcError in the failure case.
@@ -14,7 +13,7 @@ use indices::deprecate::Deprecate;
 pub fn get_indices(name: Option<String>, start: Option<i32>, end: Option<i32>)
 -> Result<Vec<Index>, EcError> {
     let ec = Elasticrud::new("cs-elastic-client-01.d2.com",9200);
-    let  r = ec.get_indices()?.into_iter();
+    let  r = ec.get_raw_indices()?.into_iter();
     // filter_map performs transformation, keeping any successful Result
     let  r = r.filter_map(|v| Index::from_str(v.index.as_str()).ok());
     // if name is supplied match against it
@@ -82,7 +81,7 @@ pub fn process_process(name: Option<String>,start: Option<i32>, end: Option<i32>
 
     let ec = Elasticrud::new("cs-elastic-client-01.d2.com",9200);
 
-    let results = ec.get_data::<Deprecate>(&results)?;
+    let results = ec.get::<Deprecate>(&results)?;
 
     for r in &results {
         println!("{}", r);
