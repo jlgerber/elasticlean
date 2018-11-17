@@ -1,15 +1,16 @@
-use std::fmt::Display;
-use std::default::Default;
 use chrono::naive::NaiveDate;
 use chrono::Utc;
 use chrono::Datelike;
-use std::num::ParseIntError;
-use std::fmt;
-use std::cmp::{PartialEq, Ordering};
 use errors::EcError;
-
 use indexparser::IndexParser;
-use rawindex::RawIndex;
+use std::{
+    default::Default,
+    fmt::Display,
+    num::ParseIntError,
+};
+use std::cmp::{PartialEq, Ordering}; // nested imports coming soon to rust
+use std::fmt;
+
 
 /// The Index struct is designed to handle dated indices
 /// of the form ```NAME-YYYY.MM.DD```

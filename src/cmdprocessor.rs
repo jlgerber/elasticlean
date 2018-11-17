@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use constants;
+use elasticrud::Elasticrud;
 use errors::EcError;
 use index::Index;
-use elasticrud::Elasticrud;
-use constants;
+use std::collections::HashSet;
 use traits::ElasticIndex;
 
 /// Process commands

@@ -1,18 +1,17 @@
-#[macro_use] extern crate structopt;
-extern crate elasticlean;
-extern crate chrono;
-extern crate failure;
-#[macro_use] extern crate log;
-extern crate env_logger;
+#[macro_use]
+extern crate log;
+//#[macro_use]
+extern crate structopt;
 
-use log::Level;
+extern crate chrono;
+extern crate elasticlean;
+extern crate env_logger;
+extern crate failure;
 
 use elasticlean::{
     errors::EcError,
     cmds::*,
 };
-
-//use elasticlean::elastic::*;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -88,7 +87,7 @@ enum Opt {
 
 fn main() -> Result<(), EcError> {
     env_logger::init();
-
+    debug!("logger initialized");
     let matches = Opt::from_args();
 
     match matches {

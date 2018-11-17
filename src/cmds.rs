@@ -1,9 +1,6 @@
 
-use errors::EcError;
-use index::Index;
-use elasticrud::Elasticrud;
 use cmdprocessor::CmdProcessor;
-
+use errors::EcError;
 use indices::Deprecate;
 use traits::ElasticIndex;
 

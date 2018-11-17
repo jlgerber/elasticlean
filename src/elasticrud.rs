@@ -1,27 +1,26 @@
-use reqwest;
 use errors::EcError;
-use rawindex::RawIndex;
 use index::Index;
-use serde_json;
-use serde;
-use serde::Deserialize;
+use rawindex::RawIndex;
+use reqwest;
+use traits::ElasticIndex;
 
 /// The outer map returned by elasticsearch _search results
 #[derive(Deserialize, Debug)]
-pub struct EVal<I> {
+pub(crate) struct EsSearchRoot<I> {
     pub hits: Hits<I>,
 }
 
-/// The value of EVal.hits is a
+/// The value of EsSearchRoot.hits
 #[derive(Deserialize, Debug)]
-pub struct Hits<I> {
+pub(crate) struct Hits<I> {
     pub total: i32,
     pub max_score: f32,
-    hits: Vec<EWrap<I>>
+    hits: Vec<EsSearchMeta<I>>
 }
 
+// metadata wrapper containing
 #[derive(Deserialize, Debug)]
-pub struct EWrap<I> {
+pub(crate) struct EsSearchMeta<I> {
     #[serde(rename = "_index")]
     pub index: String,
     #[serde(rename = "_type")]
@@ -68,13 +67,19 @@ impl Elasticrud {
 
     /// Retrieve data of a parameterized type
     ///
+    /// Note: this method assumes that the indices are deserializable
+    /// into the I type when retrieved from elasticsearch. If this is not
+    /// the case, an error will be returned at runtime.
+    ///
     /// # usage
     /// ```
-    /// let indices = "foobar-2018.10.02";
+    /// let indices = vec![Index::from_str("foobar-2018.10.02")?];
     /// let results = ec.get::<MyIndexData>(indices)?;
     /// ```
     pub fn get<I>(&self, indices: &Vec<Index>) -> Result<Vec<I>, EcError>
-    where for<'de> I: serde::Deserialize<'de>
+    where
+        //for<'de> I: serde::Deserialize<'de>
+        I: ElasticIndex
     {
         // build a comma separated string of indexes
         let indices = indices.into_iter()
@@ -85,7 +90,7 @@ impl Elasticrud {
         // build a search route
         let route = self.get_route(format!("{}/_search", indices).as_str());
         info!("get_indices route {}", route);
-        let body: EVal<I> = reqwest::get(&route)
+        let body: EsSearchRoot<I> = reqwest::get(&route)
                                 .map_err(|e| EcError::ReqwestGetError(format!("{}",e)))?
                                 .json()
                                 .map_err(|e| EcError::ReqwestJsonError(format!("{}",e)))?;
