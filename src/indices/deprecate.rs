@@ -1,7 +1,12 @@
+//! deprecate.rs
+//!
+//! This module defines the Deprecate Index in our elasticsearch
+//! instance
 use std::fmt;
 use std::fmt::Display;
 use crate::traits::ElasticIndex;
 
+/// Deserializable struct modeling the Deprecate index
 #[derive(Debug, Deserialize)]
 pub struct Deprecate {
     callee: String,
@@ -43,6 +48,8 @@ impl Display for Deprecate {
     }
 }
 
+/// Implement the ElasticIndex for Deprecate, which simply defines
+/// a const NAME for the index.
 impl ElasticIndex for Deprecate {
     const NAME: &'static str = "deprecate";
 }
