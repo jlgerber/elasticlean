@@ -1,6 +1,6 @@
-use constants::{HOSTVAR, PORTVAR};
+use crate::constants::{HOSTVAR, PORTVAR};
 use std::env::var;
-use errors::EcError;
+use crate::errors::EcError;
 
 /// Store configurable data, like the elasticsearch host name
 /// and port. The struct provides functions to generate a Config

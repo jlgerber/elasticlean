@@ -5,8 +5,8 @@
 //! with the source code, and named ```index.pest```
 //!
 use pest::Parser;
-use index::Index;
-use errors::EcError;
+use crate::index::Index;
+use crate::errors::EcError;
 
 // The pest parser is not exposed directly.
 #[derive(Parser)]

@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fmt::Display;
-use traits::ElasticIndex;
+use crate::traits::ElasticIndex;
 
 #[derive(Debug, Deserialize)]
 pub struct Deprecate {

@@ -1,8 +1,8 @@
 //! Convenience struct which defines methods
-use cmdprocessor::CmdProcessor;
-use errors::EcError;
-use indices::Deprecate;
-use traits::ElasticIndex;
+use crate::cmdprocessor::CmdProcessor;
+use crate::errors::EcError;
+use crate::indices::Deprecate;
+use crate::traits::ElasticIndex;
 
 pub struct Cmds {
     processor: CmdProcessor

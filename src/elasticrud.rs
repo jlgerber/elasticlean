@@ -4,11 +4,11 @@
 //!
 //! This file is an implementation detail
 //!
-use errors::EcError;
-use index::Index;
-use rawindex::RawIndex;
+use crate::errors::EcError;
+use crate::index::Index;
+use crate::rawindex::RawIndex;
 use reqwest;
-use traits::ElasticIndex;
+use crate::traits::ElasticIndex;
 
 /// The outer map returned by elasticsearch _search results
 #[derive(Deserialize, Debug)]

@@ -1,9 +1,9 @@
-use constants;
-use elasticrud::Elasticrud;
-use errors::EcError;
-use index::Index;
+use crate::constants;
+use crate::elasticrud::Elasticrud;
+use crate::errors::EcError;
+use crate::index::Index;
 use std::collections::HashSet;
-use traits::ElasticIndex;
+use crate::traits::ElasticIndex;
 
 
 /// Process commands
