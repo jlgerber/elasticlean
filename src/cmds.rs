@@ -1,6 +1,6 @@
 //! cmds.rs
 //!
-//! Convenience struct which defines methods for cli
+//! Convenience struct which defines methods for the cli
 use crate::cmdprocessor::CmdProcessor;
 use crate::errors::EcError;
 use crate::indices::Deprecate;
@@ -14,6 +14,14 @@ pub struct Cmds {
 impl Cmds {
     /// Construct a new Cmds struct, wrapping the CmdProcessor, which does the heavy
     /// lifting on the Cmds behalf.
+    ///
+    /// # Arguments
+    ///
+    /// `cproc` - Instance of CmdProcessor
+    ///
+    /// # Returns
+    ///
+    /// * `Cmds` instance
     pub fn new(cproc: CmdProcessor) -> Cmds {
         Cmds {
             processor: cproc
@@ -61,9 +69,9 @@ impl Cmds {
     ///
     /// # Arguments
     ///
-    /// * `name` - the name of the index
-    /// * `start` - optional offset start time, in days
-    /// * `end` - optional offset end time for the query, in days
+    /// * `name`  - The name of the index
+    /// * `start` - Optional offset start time, in days
+    /// * `end`   - Optional offset end time for the query, in days
     ///
     /// Note start must be greater than end if provided
     ///
@@ -93,9 +101,9 @@ impl Cmds {
     ///
     /// # Arguments
     ///
-    /// * `name` - The name of the index
+    /// * `name`  - The name of the index
     /// * `start` - Optional start offset, from today, of the deletion
-    /// * `end` - The end offset of the deletion
+    /// * `end`   - The end offset of the deletion
     ///
     /// # Returns
     ///
@@ -105,6 +113,5 @@ impl Cmds {
     -> Result<(), EcError> {
 
         self.processor.delete(name, start, end, dry_run)
-
     }
 }

@@ -1,3 +1,7 @@
+//! cmdprocessor.rs
+//!
+//! provides a CmdProcessor struct which handles interfacing with
+//! elasticsearch, exposing commands to perform various tasks related to cleanup.
 use crate::constants;
 use crate::elasticrud::Elasticrud;
 use crate::errors::EcError;
@@ -13,6 +17,15 @@ pub struct CmdProcessor {
 
 impl CmdProcessor {
     /// new up a CmdProcessor
+    ///
+    /// # Arguments
+    ///
+    /// * `host` - A non owned host name
+    /// * `port` - The port number
+    ///
+    /// # Returns
+    ///
+    /// * `CmdProcessor` instance
     pub fn new(host: &str, port: u16) -> CmdProcessor
     {
        CmdProcessor {
@@ -20,10 +33,21 @@ impl CmdProcessor {
        }
     }
 
-    // Given optional name, start, and end, return a Result wrapped
-    // vector of Index structs if successful, or an EcError in the failure case.
-    // The start and end are expressed in age in days from today, and can
-    // express the interval [s,e).
+    /// Given optional name, start, and end, return a Result wrapped
+    /// vector of Index structs if successful, or an EcError in the failure case.
+    /// The start and end are expressed in age in days from today, and can
+    /// express the interval [s,e).
+    ///
+    /// # Arguments
+    ///
+    /// * `name`  - An optional index name
+    /// * `start` - An optional start offset, from today
+    /// * `end`   - An optional end offset, from today
+    ///
+    /// # Returns
+    ///
+    /// * Vector of `Index` instances, on Success
+    /// * `ExError` on Failure
     pub fn get_indices(&self, name: Option<String>, start: Option<i32>, end: Option<i32>)
     -> Result<Vec<Index>, EcError> {
 
@@ -41,7 +65,18 @@ impl CmdProcessor {
     }
 
 
-    /// process the query subcommand
+    /// Get the names of all indeices matching criteria
+    ///
+    /// # Arguments
+    ///
+    /// * `name`  - Optional index name
+    /// * `start` - Optional starting offset, from today
+    /// * `end`   - Optional ending offset, from today
+    ///
+    /// # Returns
+    ///
+    /// * Vector of `String` upon success
+    /// * EcError upon failure
     pub fn query_names(&self, name: Option<String>, start: Option<i32>, end: Option<i32>)
     -> Result<Vec<String>, EcError> {
 
@@ -61,7 +96,18 @@ impl CmdProcessor {
     }
 
 
-    /// process the query subcommand
+    /// Retreve the dated index names matching the query parameters
+    ///
+    /// # Arguments
+    ///
+    /// `name`  - Optional base name string (sans date) of the index
+    /// `start` - Optional starting offset, in days, from today (where start > end)
+    /// `end`   - Optional ending offset, in days, from today (where end < start)
+    ///
+    /// # Returns
+    ///
+    /// * `Vector` of `String`s of the form <name>-<date>, if successful
+    /// * `ExError` instance
     pub fn query(&self, name: Option<String>, start: Option<i32>, end: Option<i32>)
     -> Result<Vec<String>, EcError> {
 
@@ -75,7 +121,10 @@ impl CmdProcessor {
         return Ok(return_results);
     }
 
-    // get vector of Indexes implementing the ElasticIndex trait.
+    /// Get vector of Indices each implementing the ElasticIndex trait and
+    /// matching the optional criteria.
+    ///
+    /// #
     pub fn get<I>(&self, start: Option<i32>, end: Option<i32>)
     -> Result<Vec<I>, EcError>
     where
