@@ -73,6 +73,17 @@ impl Default for Index {
 impl Index {
     // TODO: change year, month, day into u8 and return result
     /// Given a base name, year, month, and day, new up an Index
+    ///
+    /// # Parameters
+    ///
+    /// * `name`  - The base name of the Index
+    /// * `year`  - The year of the index (e.g. 2018)
+    /// * `month` - The month of the index (e.g. 4)
+    /// * `day`   - The day of the index (e.g. 12)
+    ///
+    /// # Returns
+    ///
+    /// * `Index` instance
     pub fn new<I>(name: I, year: i32, month: u32, day: u32) -> Index
     where I: Into<String>
     {
@@ -83,11 +94,35 @@ impl Index {
     }
 
     /// Given a str return a result wrapped Index or EcError.
+    ///
+    /// # Parameters
+    ///
+    /// * `name` - The name of the index, adhering to the following form
+    ///            <name>-<year>.<month>.<day>
+    ///            e.g.
+    ///            foo-2018.02.04
+    ///
+    /// # Returns
+    ///
+    /// * `Index` instance if succsessful
+    /// * `EcError` instance if unsuccessful
     pub fn from_str(name: &str) -> Result<Index, EcError> {
         IndexParser::parse(name)
     }
 
     /// Given &str components, return a result that is either an index isntance or a ParseIntError
+    ///
+    /// # Parameters
+    ///
+    /// * `name`  - Base name of the index (eg foo)
+    /// * `year`  - Year of index as &str
+    /// * `month` - Month of the index as &str
+    /// * `day`   - Day of the index as &str
+    ///
+    /// # Returns Result Containing:
+    ///
+    /// * `Index` instance if successful
+    /// * `ParseIntError` if unsuccessful
     pub fn from_strs<I>(name: I, year: &str, month: &str, day: &str) -> Result<Index, ParseIntError>
     where
         I: Into<String>
@@ -102,16 +137,40 @@ impl Index {
     }
 
     /// Get a reference to a str representing the base name of the Index
+    ///
+    /// # Parameters
+    ///
+    /// None
+    ///
+    /// # Returns
+    ///
+    /// * The base name of the index ( eg foo for foo-2018.2.4)
     pub fn name(&self) -> &str {
         self.name.as_str()
     }
 
     /// Get reference to a NaiveDate representing the date of the Index
+    ///
+    /// # Parameters
+    ///
+    /// None
+    ///
+    /// # Returns
+    ///
+    /// * Reference to a `NaiveDate` instance
     pub fn date(&self) -> &NaiveDate {
         &self.date
     }
 
-    /// Return the number of days old
+    /// Return the number of days old the index is
+    ///
+    /// # Parameters
+    ///
+    /// None
+    ///
+    /// # Returns
+    ///
+    /// * `i64` indicating the number of days old the index is
     pub fn days(&self) -> i64 {
         let now = Utc::now();
         let now_naive = NaiveDate::from_ymd(now.year(), now.month(), now.day());
@@ -120,6 +179,15 @@ impl Index {
     }
 
     /// Return the number of days since a Datelike input as an i64
+    ///
+    /// # Parameters
+    ///
+    /// * `from_date` - A reference to instance of a struct which implements the `Datelike` trait
+    ///
+    /// # Returns
+    ///
+    /// * `i64` representing the number of days between the index's age and the Datelike
+    ///         input
     pub fn days_since<D>(&self, from_date: &D) -> i64
     where
         D: Datelike
