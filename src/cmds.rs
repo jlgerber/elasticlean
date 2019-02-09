@@ -13,7 +13,9 @@ pub struct Cmds {
 
 impl Cmds {
     /// Construct a new Cmds struct, wrapping the CmdProcessor, which does the heavy
-    /// lifting on the Cmds behalf.
+    /// lifting on the Cmds behalf. Cmds methods are responsible for presenting
+    /// the results of Elasticsearch queries to the users of the cli. I.E. it prints
+    /// results to stdout.
     ///
     /// # Arguments
     ///
@@ -32,15 +34,15 @@ impl Cmds {
     ///
     /// # Arguments
     ///
-    /// * `name` - an optional string which is the name of the index we want to query
-    /// * `start` - an optional start offset, in days, from today
-    /// * `end` - an optional end offset, in days, from today
-    /// * `names_only` - whether to query the names of the indices or a specific name
+    /// * `name`       - An optional string which is the name of the index we want to query
+    /// * `start`      - An optional start offset, in days, from today
+    /// * `end`        - An optional end offset, in days, from today
+    /// * `names_only` - Whether to query the names of the indices or a specific name
     ///
     /// # Returns
     ///
-    /// * `()` - On success
-    /// * `EcError` - On failure
+    /// * `()` when successful
+    /// * `EcError` when unsuccessful
     // TODO: the call is a bit odd. We could change this to multiple methods (query_index, index_names)
     // or we could take an enum QueryParams { Range{name,start,end}, Names }
     pub fn query(&self, name: Option<String>, start: Option<i32>, end: Option<i32>, names_only:bool)
@@ -73,12 +75,12 @@ impl Cmds {
     /// * `start` - Optional offset start time, in days
     /// * `end`   - Optional offset end time for the query, in days
     ///
-    /// Note start must be greater than end if provided
+    /// Note: start must be greater than end if provided
     ///
     /// # Returns
     ///
-    /// * `()` - On Success
-    /// * `EcError` - On Failure
+    /// * `()` when successful
+    /// * `EcError` when unsuccessful
     pub fn process(&self, name: String, start: Option<i32>, end: Option<i32>)
     -> Result<(), EcError> {
 
@@ -107,8 +109,8 @@ impl Cmds {
     ///
     /// # Returns
     ///
-    /// * `()` - on Success
-    /// * `EcError` - on Failure
+    /// * `()` when success
+    /// * `EcError` when unsuccessful
     pub fn delete(&self, name: String, start: Option<i32>, end: i32, dry_run: bool)
     -> Result<(), EcError> {
 

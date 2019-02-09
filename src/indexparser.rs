@@ -22,15 +22,24 @@ pub struct IndexParser;
 impl IndexParser {
     /// parse an elasticsearch index, of the form ```name-YYYY.MM.DD``` and return
     /// a Result - either an Ok Index instance, or an Err String.
+    ///
+    /// # Parameters
+    ///
+    /// * `input` - A reference to a str which should follow `name-YYYY.MM.DD` or `name-V[.V]-YYYY.MM.DD`
+    ///
+    /// # Results
+    ///
+    /// * `Index` instance if successful
+    /// * `EcError` if unsuccessful
     pub fn parse(input: &str ) -> Result<Index, EcError> {
         let index =  _IndexParser::parse(Rule::index, input).map_err(|e| EcError::ParseError(format!("{}",e)))?;
 
         // parsing guarantees that these vars are going to get set. we just choose arbitrary
         // values for now.
-        let mut name = "foo";
-        let mut year = "2000";
-        let mut month = "01";
-        let mut day = "01";
+        let mut name = None;
+        let mut year = None;
+        let mut month = None;
+        let mut day = None;
 
         for idx_piece in index {
 
@@ -40,20 +49,20 @@ impl IndexParser {
 
                 match inner_idx_piece.as_rule() {
                     Rule::base => {
-                        name = inner_span.as_str();
+                        name = Some(inner_span.as_str());
                     },
                     Rule::date => {
                         for date_piece in inner_idx_piece.into_inner() {
                             let inner_span = date_piece.clone().into_span();
                             match date_piece.as_rule() {
                                 Rule::year  => {
-                                    year = inner_span.as_str();
+                                    year = Some(inner_span.as_str());
                                 },
                                 Rule::month => {
-                                    month = inner_span.as_str();
+                                    month = Some(inner_span.as_str());
                                 },
                                 Rule::day   => {
-                                    day = inner_span.as_str();
+                                    day = Some(inner_span.as_str());
                                 },
                                 _ => unreachable!()
                             }
@@ -64,8 +73,13 @@ impl IndexParser {
             }
         }
 
-        let idx = Index::from_strs(name, year, month, day)
-                    .map_err(|e| EcError::ParseError(format!("{}",e)))?;
+        if name.is_none() || year.is_none() || month.is_none() || day.is_none() {
+            return Err(EcError::ParseError(format!("Could not parse index: {}", input)))
+        }
+
+        let idx = Index::from_strs(name.unwrap(), year.unwrap(), month.unwrap(), day.unwrap())
+                  .map_err(|e| EcError::ParseError(format!("{}",e)))?;
+
         Ok(idx)
     }
 }
@@ -78,7 +92,7 @@ mod tests {
 
 
     #[test]
-    fn index_parse() {
+    fn can_parse_index_from_str() {
         let id = IndexParser::parse("foo-2018.02.22");
         let expected = Index {
             name: "foo".to_string(),
@@ -88,7 +102,7 @@ mod tests {
     }
 
     #[test]
-    fn index_parse_long() {
+    fn can_parse_index_with_version_and_date() {
         let id = IndexParser::parse("foo-1.2.3-2018.02.22");
         let expected = Index {
             name: "foo-1.2.3".to_string(),
@@ -98,20 +112,14 @@ mod tests {
     }
 
     #[test]
-    fn index_parse_out_of_range() {
+    fn out_of_range_month_produces_error() {
         let id = IndexParser::parse("foo-2018.13.22");
         assert!(id.is_err());
     }
 
     #[test]
-    fn index_parse_out_of_range2() {
+    fn out_of_range_day_produces_error() {
         let id = IndexParser::parse("foo-2018.11.32");
-        assert!(id.is_err());
-    }
-
-    #[test]
-    fn index_parse_out_of_range_dates() {
-        let id = IndexParser::parse("foo-2018.01.32");
         assert!(id.is_err());
     }
 }
