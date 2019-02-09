@@ -10,7 +10,7 @@ use std::collections::HashSet;
 use crate::traits::ElasticIndex;
 
 
-/// Process commands
+/// Struct responsible for executing commands
 pub struct CmdProcessor {
     pub ec: Elasticrud,
 }
@@ -124,7 +124,15 @@ impl CmdProcessor {
     /// Get vector of Indices each implementing the ElasticIndex trait and
     /// matching the optional criteria.
     ///
-    /// #
+    /// # Parameters
+    ///
+    /// * `start` - Optional number of days prior to today to retrieve indices for
+    /// * `end`   - Optional number of days prior to today to end retrieval of indices for
+    ///
+    /// # Returns
+    ///
+    /// * `Vector` of `ElasitcIndex`s if successful
+    /// * `EcError` instance if failed
     pub fn get<I>(&self, start: Option<i32>, end: Option<i32>)
     -> Result<Vec<I>, EcError>
     where
@@ -140,7 +148,21 @@ impl CmdProcessor {
         Ok(results)
     }
 
-    // process the delete subcommand
+    /// Delete indices which match supplied criteria
+    ///
+    /// # Parameters
+    ///
+    /// * `name`    - Base name of index (sans date) we are interested in
+    /// * `start`   - Optional starting offset in days to begin search
+    /// * `end`     - Optional ending offset in days to end search
+    /// * `dry_run` - Boolean indicating whether to actually perform
+    ///               the delete operation or only report on what would
+    ///               get deleted if run outside of dry_run mode
+    ///
+    /// # Returns
+    ///
+    /// * `()` if successful
+    /// * `EcError`instance if unsuccessful
     pub fn delete(&self, name: String, start: Option<i32>, end: i32, dry_run: bool)
     -> Result<(), EcError> {
 
