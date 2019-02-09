@@ -9,9 +9,12 @@ extern crate env_logger;
 extern crate failure;
 
 use elasticlean::{
+    cmds::Cmds,
+    cmdprocessor::CmdProcessor,
+    config::Config,
     errors::EcError,
-    cmds::*,
 };
+
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -88,12 +91,18 @@ enum Opt {
 fn main() -> Result<(), EcError> {
     env_logger::init();
     debug!("logger initialized");
-    let matches = Opt::from_args();
+    // create config from the environment
+    let config = Config::from_env()?;
+    // create command processor
+    let cproc = CmdProcessor::new(config.host.as_str(), config.port);
+    // create cmds struct
+    let cmds = Cmds::new(cproc);
 
-    match matches {
-         Opt::Query{ name, start, end, names_only } => process_query(name, start, end, names_only),
-         Opt::Process{ name, start, end }           => process_process(name, start, end),
-         Opt::Delete{ name, start, end, dry_run }   => process_delete(name, start, end, dry_run),
+    //let matches = Opt::from_args();
+    match Opt::from_args() {
+         Opt::Query{ name, start, end, names_only } => cmds.query(name, start, end, names_only),
+         Opt::Process{ name, start, end }           => cmds.process(name, start, end),
+         Opt::Delete{ name, start, end, dry_run }   => cmds.delete(name, start, end, dry_run),
     }?;
 
     Ok(())

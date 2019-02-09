@@ -1,19 +1,28 @@
-
+//! Convenience struct which defines methods
 use cmdprocessor::CmdProcessor;
 use errors::EcError;
 use indices::Deprecate;
 use traits::ElasticIndex;
 
+pub struct Cmds {
+    processor: CmdProcessor
+}
+
+impl Cmds {
+    pub fn new(cproc: CmdProcessor) -> Cmds {
+        Cmds {
+            processor: cproc
+        }
+    }
+
 // process the query subcommand
-pub fn process_query(name: Option<String>, start: Option<i32>, end: Option<i32>, names_only:bool)
+pub fn query(&self, name: Option<String>, start: Option<i32>, end: Option<i32>, names_only:bool)
 -> Result<(), EcError> {
 
-    let cproc = CmdProcessor::new("cs-elastic-client-01.d2.com", 9200);
-
     let  results = if names_only {
-        cproc.query_names(name, start, end)?
+        self.processor.query_names(name, start, end)?
     } else {
-        cproc.query(name, start, end)?
+        self.processor.query(name, start, end)?
     };
 
     for r in &results {
@@ -26,13 +35,11 @@ pub fn process_query(name: Option<String>, start: Option<i32>, end: Option<i32>,
 }
 
 // process the process subcommand
-pub fn process_process(name: String,start: Option<i32>, end: Option<i32>)
+pub fn process(&self, name: String,start: Option<i32>, end: Option<i32>)
 -> Result<(), EcError> {
 
-    let cproc = CmdProcessor::new("cs-elastic-client-01.d2.com", 9200);
-
     let results = match name.as_str() {
-        Deprecate::NAME => { cproc.get::<Deprecate>(start, end) },
+        Deprecate::NAME => { self.processor.get::<Deprecate>(start, end) },
         _ => {
             Err(EcError::ParseError(format!("Unrecognized index: {}", name)))
         }
@@ -45,10 +52,11 @@ pub fn process_process(name: String,start: Option<i32>, end: Option<i32>)
     Ok(())
 }
 // process the delete subcommand
-pub fn process_delete(name: String, start: Option<i32>, end: i32, dry_run: bool)
+pub fn delete(&self, name: String, start: Option<i32>, end: i32, dry_run: bool)
  -> Result<(), EcError> {
 
-    let cproc = CmdProcessor::new("cs-elastic-client-01.d2.com", 9200);
-    cproc.delete(name, start, end, dry_run)
+    self.processor.delete(name, start, end, dry_run)
+
+}
 
 }

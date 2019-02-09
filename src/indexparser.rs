@@ -1,3 +1,9 @@
+//! # indexparser.rs
+//!
+//! Parser for the dated index name, generated in logstash. This uses
+//! Pest transform a PEG grammar into a struct. The grammar file is located
+//! with the source code, and named ```index.pest```
+//!
 use pest::Parser;
 use index::Index;
 use errors::EcError;

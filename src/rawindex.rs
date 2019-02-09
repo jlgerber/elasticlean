@@ -1,3 +1,8 @@
+//! # rawindex.rs
+//!
+//! Herein we define a RawIndex struct which models metadata
+//! returned by elasticsearch when querying the state of an index
+
 /// The RawIndex struct reflects the Index data structure
 /// in returned by Elasticsearch.
 /// It is designed to be deserialized via serde_json

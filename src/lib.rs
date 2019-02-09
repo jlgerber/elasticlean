@@ -13,11 +13,12 @@ extern crate serde_json;
 
 pub mod cmds;
 pub mod cmdprocessor;
-pub mod constants;
-pub mod elasticrud;
+pub(crate) mod constants;
+pub(crate) mod elasticrud;
 pub mod errors;
 pub mod index;
 pub(crate) mod indexparser;
 pub mod indices;
 pub mod rawindex;
 pub mod traits;
+pub mod config;

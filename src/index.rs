@@ -1,16 +1,23 @@
-use chrono::naive::NaiveDate;
-use chrono::Utc;
-use chrono::Datelike;
+//! # index.rs
+//!
+//! representation of our elasticsearch index format,
+//! consisting of a base name and date, generated
+//! in logstash.
+
+use chrono::{
+    naive::NaiveDate,
+    Utc,
+    Datelike
+};
 use errors::EcError;
 use indexparser::IndexParser;
 use std::{
     default::Default,
+    fmt,
     fmt::Display,
     num::ParseIntError,
 };
 use std::cmp::{PartialEq, Ordering}; // nested imports coming soon to rust
-use std::fmt;
-
 
 /// The Index struct is designed to handle dated indices
 /// of the form ```NAME-YYYY.MM.DD```

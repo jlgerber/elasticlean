@@ -5,6 +5,7 @@ use index::Index;
 use std::collections::HashSet;
 use traits::ElasticIndex;
 
+
 /// Process commands
 pub struct CmdProcessor {
     pub ec: Elasticrud,

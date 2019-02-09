@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+export ELASTICLEAN_HOST="cs-elastic-client-01.d2.com"
+export ELASTICLEAN_PORT="9200"
+exec ./target/release/elasticlean "$@"

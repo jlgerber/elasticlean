@@ -1,3 +1,9 @@
+//! # elasticrud.rs
+//!
+//! Communication with Elasticsearch via REST.
+//!
+//! This file is an implementation detail
+//!
 use errors::EcError;
 use index::Index;
 use rawindex::RawIndex;
@@ -72,7 +78,7 @@ impl Elasticrud {
     /// the case, an error will be returned at runtime.
     ///
     /// # usage
-    /// ```
+    /// ```rust,ignore
     /// let indices = vec![Index::from_str("foobar-2018.10.02")?];
     /// let results = ec.get::<MyIndexData>(indices)?;
     /// ```
