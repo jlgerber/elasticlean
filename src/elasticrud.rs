@@ -2,13 +2,16 @@
 //!
 //! Communication with Elasticsearch via REST.
 //!
-//! This file is an implementation detail
+//! This file is an implementation detail. The classes
+//! are not exposed as public api.
 //!
-use crate::errors::EcError;
-use crate::index::Index;
-use crate::rawindex::RawIndex;
+use crate::{
+    errors::EcError,
+    index::Index,
+    rawindex::RawIndex,
+    traits::ElasticIndex,
+};
 use reqwest;
-use crate::traits::ElasticIndex;
 
 /// The outer map returned by elasticsearch _search results
 #[derive(Deserialize, Debug)]
@@ -49,6 +52,15 @@ pub struct Elasticrud {
 
 impl Elasticrud {
     /// New up an instance of Elasticrud given a host and port number
+    ///
+    /// # Parameters
+    ///
+    /// * `host` - The host url
+    /// * `port` - The port number
+    ///
+    /// # Returns
+    ///
+    /// * `Elasticrud` instance
     pub fn new<I>(host: I, port: u16) -> Elasticrud
     where
         I: Into<String>
@@ -59,7 +71,16 @@ impl Elasticrud {
         }
     }
 
-    /// retrieve a list of indices
+    /// Retrieve a list of indices from elasticsearch
+    ///
+    /// # Parameters
+    ///
+    /// None
+    ///
+    /// # Returns
+    ///
+    /// * `Vector` of `RawIndex` instances if successful
+    /// * `EcError` if unsuccesful
     pub fn get_raw_indices(&self) -> Result<Vec<RawIndex>, EcError> {
         let route = self.get_route("_cat/indices?format=json");
         debug!("Elasticrud.get - route {}", route);
@@ -77,7 +98,17 @@ impl Elasticrud {
     /// into the I type when retrieved from elasticsearch. If this is not
     /// the case, an error will be returned at runtime.
     ///
-    /// # usage
+    /// # Parameters
+    ///
+    /// * `indices` - References to a `Vector` of `Index`instances
+    ///
+    /// # Returns
+    ///
+    /// * `Vector` of `ElasticIndex` implementers if successful
+    /// * `EcError`` instance if unsuccessful
+    ///
+    /// # Usage
+    ///
     /// ```rust,ignore
     /// let indices = vec![Index::from_str("foobar-2018.10.02")?];
     /// let results = ec.get::<MyIndexData>(indices)?;
@@ -108,6 +139,15 @@ impl Elasticrud {
     }
 
     /// Delete one or more indices, provided as a string
+    ///
+    /// # Parameters
+    ///
+    /// * `indices` - Reference to a `Vector` Of Index instances
+    ///
+    /// # Returns
+    ///
+    /// * `request::Response` instance if successful
+    /// * `EcError` instance if unsuccessful
     pub fn delete_indices(&self, indices: &Vec<Index>) -> Result<reqwest::Response, EcError> {
         // generate a String
         let idxs = indices.into_iter()
@@ -125,7 +165,7 @@ impl Elasticrud {
 
     }
 
-    // build a uri given the resource
+    // Build a uri given the resource
     fn get_route(&self, resource: &str) -> String {
         format!("http://{}:{}/{}", self.host, self.port, resource)
     }
