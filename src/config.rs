@@ -2,7 +2,7 @@
 //!
 //! Configuration data management
 use crate::{
-    constants::{HOSTVAR, PORTVAR},
+    constants::{HOSTVAR, PORTVAR, MIN_DAYS_VAR},
     errors::EcError,
  };
 use std::env::var;
@@ -14,6 +14,7 @@ use std::env::var;
 pub struct Config {
     pub host: String,
     pub port: u16,
+    pub min_days: u32,
 }
 
 impl Config {
@@ -27,14 +28,16 @@ impl Config {
     /// # Returns
     ///
     /// * `Config` instance
-    pub fn new<I, J>(host: I, port: J) -> Config
+    pub fn new<I, J, K>(host: I, port: J, min_days: K) -> Config
     where
         I: Into<String>,
-        J: Into<String>
+        J: Into<String>,
+        K: Into<String>,
     {
         Config {
             host: host.into(),
-            port: port.into().parse::<u16>().unwrap()
+            port: port.into().parse::<u16>().unwrap(),
+            min_days: min_days.into().parse::<u32>().unwrap(),
         }
     }
 
@@ -52,7 +55,8 @@ impl Config {
     pub fn from_env() -> Result<Config, EcError> {
         let host = var(HOSTVAR).map_err(|_| { EcError::EnvVarError(HOSTVAR.to_string())} )?;
         let port = var(PORTVAR).map_err(|_| {EcError::EnvVarError(PORTVAR.to_string())})?;
-        Ok(Config::new(host, port))
+        let min_days = var(MIN_DAYS_VAR).map_err(|_| {EcError::EnvVarError(MIN_DAYS_VAR.to_string())})?;
+        Ok(Config::new(host, port, min_days))
     }
 }
 
@@ -60,11 +64,12 @@ impl Config {
 mod tests {
     use super::*;
     #[test]
-    fn newconfig() {
-        let nc = Config::new("foo", "16");
+    fn can_new_up_config() {
+        let nc = Config::new("foo", "16", "5");
         let expect = Config {
             host: "foo".to_string(),
             port: 16,
+            min_days: 5,
         };
 
         assert_eq!(nc, expect);

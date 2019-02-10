@@ -44,13 +44,13 @@ pub(crate) struct EsSearchMeta<I> {
 
 /// Responsible for providing basic crud over indices
 #[derive(Debug)]
-pub struct Elasticrud {
-    host: String,
+pub struct Elasticrud<'a> {
+    host: &'a str,
     port: u16,
 }
 
 
-impl Elasticrud {
+impl<'a> Elasticrud<'a> {
     /// New up an instance of Elasticrud given a host and port number
     ///
     /// # Parameters
@@ -61,12 +61,11 @@ impl Elasticrud {
     /// # Returns
     ///
     /// * `Elasticrud` instance
-    pub fn new<I>(host: I, port: u16) -> Elasticrud
-    where
-        I: Into<String>
+    pub fn new(host: &'a str, port: u16) -> Elasticrud<'a>
+
     {
         Elasticrud {
-            host: host.into(),
+            host: host,//.into(),
             port,
         }
     }

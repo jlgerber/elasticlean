@@ -7,11 +7,11 @@ use crate::indices::Deprecate;
 use crate::traits::ElasticIndex;
 
 /// Provides cli command methods
-pub struct Cmds {
-    processor: CmdProcessor
+pub struct Cmds<'a, 'b: 'a> {
+    processor: CmdProcessor<'a, 'b>
 }
 
-impl Cmds {
+impl<'a, 'b> Cmds<'a, 'b> {
     /// Construct a new Cmds struct, wrapping the CmdProcessor, which does the heavy
     /// lifting on the Cmds behalf. Cmds methods are responsible for presenting
     /// the results of Elasticsearch queries to the users of the cli. I.E. it prints
@@ -24,7 +24,7 @@ impl Cmds {
     /// # Returns
     ///
     /// * `Cmds` instance
-    pub fn new(cproc: CmdProcessor) -> Cmds {
+    pub fn new(cproc: CmdProcessor<'a,'b>) -> Cmds<'a,'b> {
         Cmds {
             processor: cproc
         }

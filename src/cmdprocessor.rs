@@ -8,14 +8,15 @@ use crate::errors::EcError;
 use crate::index::Index;
 use std::collections::HashSet;
 use crate::traits::ElasticIndex;
-
+use crate::config::Config;
 
 /// Struct responsible for executing commands
-pub struct CmdProcessor {
-    pub ec: Elasticrud,
+pub struct CmdProcessor<'a, 'b: 'a> {
+    pub config: &'b Config,
+    pub ec: Elasticrud<'a>,
 }
 
-impl CmdProcessor {
+impl<'a, 'b> CmdProcessor<'a, 'b> {
     /// new up a CmdProcessor
     ///
     /// # Arguments
@@ -26,10 +27,12 @@ impl CmdProcessor {
     /// # Returns
     ///
     /// * `CmdProcessor` instance
-    pub fn new(host: &str, port: u16) -> CmdProcessor
+    pub fn new(config: &'b Config) -> CmdProcessor<'a, 'b>
     {
+        let port  = config.port;
        CmdProcessor {
-        ec: Elasticrud::new(host, port)
+           config: config,
+        ec: Elasticrud::new(&config.host, port)
        }
     }
 
@@ -168,11 +171,11 @@ impl CmdProcessor {
 
         // make sure that we keep the minimum number of indices no matter what the user
         // requests
-        let end_new = if end > constants::MIN_DAYS { end } else {
+        let end_new = if end > self.config.min_days as i32 { end } else {
             debug!("process_delete requested end value {} falls within MIN_DAYS.
-            Using MIN_DAYS {} ",
-            end, constants::MIN_DAYS);
-            constants::MIN_DAYS
+            Using MIN_DAYS {} ", end, self.config.min_days);
+
+            self.config.min_days as i32
         };
 
         let results: Vec<Index> =

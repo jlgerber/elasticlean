@@ -93,8 +93,11 @@ fn main() -> Result<(), EcError> {
     debug!("logger initialized");
     // create config from the environment
     let config = Config::from_env()?;
+
     // create command processor
-    let cproc = CmdProcessor::new(config.host.as_str(), config.port);
+    //let cproc = CmdProcessor::new(config.host.as_str(), config.port);
+    let cproc = CmdProcessor::new(&config);
+
     // create cmds struct
     let cmds = Cmds::new(cproc);
 
