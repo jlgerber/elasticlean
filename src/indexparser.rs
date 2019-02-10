@@ -90,7 +90,6 @@ mod tests {
     use super::*;
     use chrono::naive::NaiveDate;
 
-
     #[test]
     fn can_parse_index_from_str() {
         let id = IndexParser::parse("foo-2018.02.22");
